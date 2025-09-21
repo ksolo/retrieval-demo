@@ -8,3 +8,9 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Dotenv File
+.env
+
+# Fleet editor config directory
+.fleet/
