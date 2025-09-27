@@ -1,6 +1,6 @@
 # Retrieval Demo
 
-A Python demonstration project showcasing retrieval-augmented generation (RAG) using LangGraph, OpenAI embeddings, and Qdrant vector store.
+A Python demonstration project showcasing retrieval-augmented generation (RAG) using LangGraph, OpenAI embeddings, and Weaviate vector store.
 
 ## Prerequisites
 
@@ -22,7 +22,7 @@ A Python demonstration project showcasing retrieval-augmented generation (RAG) u
    ```
    Edit `.env` with your OpenAI API key and other required variables.
 
-3. **Start the Qdrant vector store:**
+3. **Start the Weaviate vector store:**
    ```bash
    docker compose up -d
    ```
@@ -34,11 +34,11 @@ A Python demonstration project showcasing retrieval-augmented generation (RAG) u
 
 ## Services
 
-### Qdrant Vector Store
-- **URL:** http://localhost:6333
-- **Web UI:** http://localhost:6333/dashboard
-- **API Documentation:** http://localhost:6333/docs
-- **Configuration:** Optimized for OpenAI text-embedding-3-small (1536 dimensions)
+### Weaviate Vector Store
+- **URL:** http://localhost:8080
+- **API Documentation:** http://localhost:8080/v1
+- **GraphQL Playground:** http://localhost:8080/v1/graphql
+- **Configuration:** Supports OpenAI embeddings with automatic sparse vectors for text fields
 
 ## Usage
 
@@ -75,6 +75,6 @@ docker compose logs -f
 # Stop services
 docker compose down
 
-# Reset Qdrant data
+# Reset Weaviate data
 docker compose down -v
 ```
