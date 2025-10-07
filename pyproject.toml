@@ -21,6 +21,9 @@ dependencies = [
 
 [project.scripts]
 retrieval-demo = "retrieval_demo:main"
+prepare-eval-dataset = "eval.cli.prepare_dataset:main"
+run-chunking-eval = "eval.cli.run_chunking_eval:main"
+run-retrieval-eval = "eval.cli.run_retrieval_eval:main"
 
 [build-system]
 requires = ["uv_build>=0.8.19,<0.9.0"]
