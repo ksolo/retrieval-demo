@@ -11,6 +11,7 @@ def mock_openai_client():
     Returns a context manager that patches OpenAI and provides
     a configured mock client with helper methods.
     """
+
     class MockOpenAIContext:
         def __init__(self):
             self.patcher = None
@@ -18,7 +19,7 @@ def mock_openai_client():
 
         def __enter__(self):
             # Patch at the module where it's imported
-            self.patcher = patch('retrieval_demo.dataloader.categorization.OpenAI')
+            self.patcher = patch("retrieval_demo.dataloader.categorization.OpenAI")
             mock_openai_class = self.patcher.__enter__()
             self.mock_client = MagicMock()
             mock_openai_class.return_value = self.mock_client

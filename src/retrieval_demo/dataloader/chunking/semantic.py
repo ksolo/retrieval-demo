@@ -11,12 +11,10 @@ class SemanticChunkerStrategy(ChunkingStrategy):
     def __init__(self, openai_api_key: str):
         """Initialize with OpenAI API key."""
         self.embeddings = OpenAIEmbeddings(
-            api_key=openai_api_key,
-            model="text-embedding-3-small"
+            api_key=openai_api_key, model="text-embedding-3-small"
         )
         self.splitter = SemanticChunker(
-            embeddings=self.embeddings,
-            breakpoint_threshold_type="percentile"
+            embeddings=self.embeddings, breakpoint_threshold_type="percentile"
         )
 
     def get_collection_name(self) -> str:
@@ -24,10 +22,7 @@ class SemanticChunkerStrategy(ChunkingStrategy):
         return "chunks_semantic_percentile"
 
     def chunk_document(
-        self,
-        document: str,
-        document_id: str,
-        category: Optional[str] = None
+        self, document: str, document_id: str, category: Optional[str] = None
     ) -> List[Chunk]:
         """Chunk document using SemanticChunker."""
         text_chunks = self.splitter.split_text(document)
@@ -38,7 +33,7 @@ class SemanticChunkerStrategy(ChunkingStrategy):
                 document_id=document_id,
                 chunk_index=chunk_index,
                 chunk_size=len(text),
-                category=category
+                category=category,
             )
             chunks.append(Chunk(text=text, metadata=metadata))
 

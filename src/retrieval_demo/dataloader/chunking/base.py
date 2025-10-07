@@ -6,6 +6,7 @@ from typing import List, Optional
 @dataclass
 class ChunkMetadata:
     """Metadata for a text chunk."""
+
     document_id: str  # Changed from int to support eval_id format
     chunk_index: int
     chunk_size: int
@@ -15,6 +16,7 @@ class ChunkMetadata:
 @dataclass
 class Chunk:
     """A text chunk with associated metadata."""
+
     text: str
     metadata: ChunkMetadata
 
@@ -31,6 +33,6 @@ class ChunkingStrategy(ABC):
         self,
         document: str,
         document_id: str,  # Changed from int
-        category: Optional[str] = None  # Added for categorized datasets
+        category: Optional[str] = None,  # Added for categorized datasets
     ) -> List[Chunk]:
         """Chunk a document and return list of chunks with metadata."""

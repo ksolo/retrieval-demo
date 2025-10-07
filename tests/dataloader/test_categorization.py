@@ -2,8 +2,7 @@
 
 import json
 import pytest
-from pathlib import Path
-from unittest.mock import Mock, patch
+from unittest.mock import Mock
 from retrieval_demo.dataloader.categorization import Categorizer, CategorizedDataset
 
 
@@ -19,7 +18,7 @@ class TestCategorizer:
 
             result = categorizer.categorize(
                 context="The mitochondria is the powerhouse of the cell.",
-                question="What is the function of mitochondria?"
+                question="What is the function of mitochondria?",
             )
 
             assert result == "Science"
@@ -33,8 +32,7 @@ class TestCategorizer:
             categorizer = Categorizer(model="gpt-5-mini")
 
             result = categorizer.categorize(
-                context="Some context",
-                question="Some question"
+                context="Some context", question="Some question"
             )
 
             assert result is None
@@ -47,8 +45,7 @@ class TestCategorizer:
             categorizer = Categorizer(model="gpt-5-mini")
 
             result = categorizer.categorize(
-                context="AI and machine learning",
-                question="What is AI?"
+                context="AI and machine learning", question="What is AI?"
             )
 
             assert result == "Technology"
@@ -61,8 +58,7 @@ class TestCategorizer:
             categorizer = Categorizer(model="gpt-5-mini")
 
             result = categorizer.categorize(
-                context="Some context",
-                question="Some question"
+                context="Some context", question="Some question"
             )
 
             assert result is None
@@ -98,17 +94,19 @@ class TestCategorizedDataset:
     ):
         """Test that categories are created when cache is empty."""
         mock_categorizer.categorize.side_effect = [
-            "Science", "Technology", "History", "Science", "Technology"
+            "Science",
+            "Technology",
+            "History",
+            "Science",
+            "Technology",
         ]
 
         categorized_dataset = CategorizedDataset(
-            cache_path=str(temp_cache_path),
-            categorizer=mock_categorizer
+            cache_path=str(temp_cache_path), categorizer=mock_categorizer
         )
 
         result = categorized_dataset.get_or_create_categories(
-            dataset=sample_dataset,
-            dataset_version="v1.0"
+            dataset=sample_dataset, dataset_version="v1.0"
         )
 
         # Should have categorized all 5 samples
@@ -130,28 +128,23 @@ class TestCategorizedDataset:
         """Test that cached categories are used when version matches."""
         # Pre-populate cache
         cache_data = {
-            "dataset_version": {
-                "id": "v1.0",
-                "last_updated": "2025-10-04T12:00:00"
-            },
+            "dataset_version": {"id": "v1.0", "last_updated": "2025-10-04T12:00:00"},
             "samples": [
                 {"index": 0, "category": "Science"},
                 {"index": 1, "category": "Technology"},
                 {"index": 2, "category": "History"},
                 {"index": 3, "category": "Science"},
                 {"index": 4, "category": "Technology"},
-            ]
+            ],
         }
         temp_cache_path.write_text(json.dumps(cache_data))
 
         categorized_dataset = CategorizedDataset(
-            cache_path=str(temp_cache_path),
-            categorizer=mock_categorizer
+            cache_path=str(temp_cache_path), categorizer=mock_categorizer
         )
 
         result = categorized_dataset.get_or_create_categories(
-            dataset=sample_dataset,
-            dataset_version="v1.0"
+            dataset=sample_dataset, dataset_version="v1.0"
         )
 
         # Should have used cache, not called categorizer
@@ -168,28 +161,28 @@ class TestCategorizedDataset:
         """Test that re-categorization happens when version doesn't match."""
         # Pre-populate cache with old version
         cache_data = {
-            "dataset_version": {
-                "id": "v0.9",
-                "last_updated": "2025-10-03T12:00:00"
-            },
+            "dataset_version": {"id": "v0.9", "last_updated": "2025-10-03T12:00:00"},
             "samples": [
                 {"index": 0, "category": "OldCategory"},
-            ]
+            ],
         }
         temp_cache_path.write_text(json.dumps(cache_data))
 
         mock_categorizer.categorize.side_effect = [
-            "Science", "Technology", "History", "Science", "Technology"
+            "Science",
+            "Technology",
+            "History",
+            "Science",
+            "Technology",
         ]
 
         categorized_dataset = CategorizedDataset(
-            cache_path=str(temp_cache_path),
-            categorizer=mock_categorizer
+            cache_path=str(temp_cache_path), categorizer=mock_categorizer
         )
 
         result = categorized_dataset.get_or_create_categories(
             dataset=sample_dataset,
-            dataset_version="v1.0"  # Different version
+            dataset_version="v1.0",  # Different version
         )
 
         # Should have re-categorized
@@ -205,17 +198,19 @@ class TestCategorizedDataset:
     ):
         """Test that documents with None category are skipped."""
         mock_categorizer.categorize.side_effect = [
-            "Science", None, "Technology", "Science", None
+            "Science",
+            None,
+            "Technology",
+            "Science",
+            None,
         ]
 
         categorized_dataset = CategorizedDataset(
-            cache_path=str(temp_cache_path),
-            categorizer=mock_categorizer
+            cache_path=str(temp_cache_path), categorizer=mock_categorizer
         )
 
         result = categorized_dataset.get_or_create_categories(
-            dataset=sample_dataset,
-            dataset_version="v1.0"
+            dataset=sample_dataset, dataset_version="v1.0"
         )
 
         # Should only have 3 samples (2 were skipped)
@@ -228,24 +223,32 @@ class TestCategorizedDataset:
     ):
         """Test that only first 5 unique categories are kept."""
         # Dataset with 10 samples, 8 different categories
-        large_dataset = [{"context": f"content {i}", "question": f"Q{i}?", "answer": f"A{i}"}
-                        for i in range(10)]
+        large_dataset = [
+            {"context": f"content {i}", "question": f"Q{i}?", "answer": f"A{i}"}
+            for i in range(10)
+        ]
 
         mock_categorizer.categorize.side_effect = [
-            "Cat1", "Cat2", "Cat3", "Cat4", "Cat5",  # First 5 unique
-            "Cat6", "Cat7", "Cat8",                   # Should be ignored
-            "Cat1", "Cat2"                            # Duplicates of first 5, should keep
+            "Cat1",
+            "Cat2",
+            "Cat3",
+            "Cat4",
+            "Cat5",  # First 5 unique
+            "Cat6",
+            "Cat7",
+            "Cat8",  # Should be ignored
+            "Cat1",
+            "Cat2",  # Duplicates of first 5, should keep
         ]
 
         categorized_dataset = CategorizedDataset(
             cache_path=str(temp_cache_path),
             categorizer=mock_categorizer,
-            max_categories=5
+            max_categories=5,
         )
 
         result = categorized_dataset.get_or_create_categories(
-            dataset=large_dataset,
-            dataset_version="v1.0"
+            dataset=large_dataset, dataset_version="v1.0"
         )
 
         # Get unique categories from result
@@ -263,17 +266,19 @@ class TestCategorizedDataset:
     ):
         """Test that cache is saved with correct JSON structure."""
         mock_categorizer.categorize.side_effect = [
-            "Science", "Technology", "History", "Science", "Technology"
+            "Science",
+            "Technology",
+            "History",
+            "Science",
+            "Technology",
         ]
 
         categorized_dataset = CategorizedDataset(
-            cache_path=str(temp_cache_path),
-            categorizer=mock_categorizer
+            cache_path=str(temp_cache_path), categorizer=mock_categorizer
         )
 
         categorized_dataset.get_or_create_categories(
-            dataset=sample_dataset,
-            dataset_version="v1.0"
+            dataset=sample_dataset, dataset_version="v1.0"
         )
 
         # Read cache and verify structure

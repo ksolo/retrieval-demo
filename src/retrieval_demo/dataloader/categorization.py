@@ -45,7 +45,9 @@ class Categorizer:
             Category string, or None if categorization fails
         """
         try:
-            prompt = CATEGORIZATION_PROMPT.format(context=context[:1000], question=question)
+            prompt = CATEGORIZATION_PROMPT.format(
+                context=context[:1000], question=question
+            )
 
             response = self.client.chat.completions.create(
                 model=self.model,
@@ -71,10 +73,7 @@ class CategorizedDataset:
     """Manages categorization with caching."""
 
     def __init__(
-        self,
-        cache_path: str,
-        categorizer: Categorizer,
-        max_categories: int = 5
+        self, cache_path: str, categorizer: Categorizer, max_categories: int = 5
     ):
         """Initialize with cache path and categorizer.
 
@@ -88,9 +87,7 @@ class CategorizedDataset:
         self.max_categories = max_categories
 
     def get_or_create_categories(
-        self,
-        dataset: list[dict],
-        dataset_version: str
+        self, dataset: list[dict], dataset_version: str
     ) -> list[dict]:
         """Get cached categories or create new ones.
 
@@ -124,43 +121,40 @@ class CategorizedDataset:
             return None
 
         try:
-            with open(self.cache_path, 'r') as f:
+            with open(self.cache_path, "r") as f:
                 return json.load(f)
         except Exception as e:
             logger.warning(f"Failed to load cache: {e}")
             return None
 
-    def _save_cache(self, categorized_dataset: list[dict], dataset_version: str) -> None:
+    def _save_cache(
+        self, categorized_dataset: list[dict], dataset_version: str
+    ) -> None:
         """Save categories to cache."""
         cache_data = {
             "dataset_version": {
                 "id": dataset_version,
-                "last_updated": datetime.now().isoformat()
+                "last_updated": datetime.now().isoformat(),
             },
             "samples": [
                 {"index": i, "category": item["category"]}
                 for i, item in enumerate(categorized_dataset)
-            ]
+            ],
         }
 
         # Ensure cache directory exists
         self.cache_path.parent.mkdir(parents=True, exist_ok=True)
 
-        with open(self.cache_path, 'w') as f:
+        with open(self.cache_path, "w") as f:
             json.dump(cache_data, f, indent=2)
 
         logger.info(f"Saved {len(categorized_dataset)} categories to cache")
 
-    def _apply_cached_categories(
-        self,
-        dataset: list[dict],
-        cache: dict
-    ) -> list[dict]:
+    def _apply_cached_categories(self, dataset: list[dict], cache: dict) -> list[dict]:
         """Apply cached categories to dataset."""
         # Build index -> category map
         category_map = {
-            sample["index"]: sample["category"]
-            for sample in cache.get("samples", [])
+            sample["index"]: sample["category"] for sample in cache.get("samples", [])
         }
 
         # Apply categories
@@ -185,8 +179,7 @@ class CategorizedDataset:
                 logger.info(f"Categorized {i + 1}/{len(dataset)} samples")
 
             category = self.categorizer.categorize(
-                context=item["context"],
-                question=item["question"]
+                context=item["context"], question=item["question"]
             )
 
             # Skip if categorization failed

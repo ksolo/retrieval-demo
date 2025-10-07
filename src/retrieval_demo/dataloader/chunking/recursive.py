@@ -22,10 +22,7 @@ class RecursiveTextSplitterStrategy(ChunkingStrategy):
         return f"chunks_recursive_{self.chunk_size}_{self.chunk_overlap}"
 
     def chunk_document(
-        self,
-        document: str,
-        document_id: str,
-        category: Optional[str] = None
+        self, document: str, document_id: str, category: Optional[str] = None
     ) -> List[Chunk]:
         """Chunk document using RecursiveCharacterTextSplitter."""
         text_chunks = self.splitter.split_text(document)
@@ -36,7 +33,7 @@ class RecursiveTextSplitterStrategy(ChunkingStrategy):
                 document_id=document_id,
                 chunk_index=chunk_index,
                 chunk_size=len(text),
-                category=category
+                category=category,
             )
             chunks.append(Chunk(text=text, metadata=metadata))
 

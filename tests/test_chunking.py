@@ -1,18 +1,19 @@
 """Tests for chunking strategies."""
 
-import pytest
-from src.retrieval_demo.dataloader.chunking.recursive import RecursiveTextSplitterStrategy
+from src.retrieval_demo.dataloader.chunking.recursive import (
+    RecursiveTextSplitterStrategy,
+)
 from src.retrieval_demo.dataloader.chunking.base import Chunk, ChunkMetadata
 
 
 class TestRecursiveTextSplitterStrategy:
     """Tests for RecursiveTextSplitterStrategy."""
-    
+
     def test_collection_name_format(self):
         """Test that collection name follows expected format."""
         strategy = RecursiveTextSplitterStrategy(chunk_size=100, chunk_overlap=25)
         assert strategy.get_collection_name() == "chunks_recursive_100_25"
-    
+
     def test_chunk_document_returns_chunks(self):
         """Test that chunking returns Chunk objects with proper metadata."""
         strategy = RecursiveTextSplitterStrategy(chunk_size=50, chunk_overlap=10)
@@ -32,11 +33,13 @@ class TestRecursiveTextSplitterStrategy:
             assert chunk.metadata.chunk_size == len(chunk.text)
             assert chunk.metadata.chunk_index >= 0
             assert chunk.metadata.category is None  # No category by default
-    
+
     def test_chunk_indices_are_sequential(self):
         """Test that chunk indices are sequential starting from 0."""
         strategy = RecursiveTextSplitterStrategy(chunk_size=20, chunk_overlap=5)
-        document = "This is a test document that should be split into multiple chunks. " * 5
+        document = (
+            "This is a test document that should be split into multiple chunks. " * 5
+        )
 
         chunks = strategy.chunk_document(document, "doc_0")
 
