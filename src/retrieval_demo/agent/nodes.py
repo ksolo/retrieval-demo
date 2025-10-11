@@ -67,7 +67,7 @@ def model_node(state: AgentState) -> dict:
     )
 
     # Initialize LLM (uses OPENAI_API_KEY from env)
-    llm = ChatOpenAI(model="gpt-4o-mini", temperature=0.0)
+    llm = ChatOpenAI(model="gpt-5-mini", temperature=0.0)
 
     # Generate response
     response = llm.invoke([system_message, user_message])

@@ -8,7 +8,7 @@ from retrieval_demo.dataloader.data.loader import RAGDatasetLoader
 from retrieval_demo.dataloader.categorization import Categorizer
 from retrieval_demo.pipeline.ingestion import DataIngestionPipeline
 from retrieval_demo.vectorstore.client import get_weaviate_client
-from eval.dataset import EvalDatasetManager
+from retrieval_demo.eval.dataset import EvalDatasetManager
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"

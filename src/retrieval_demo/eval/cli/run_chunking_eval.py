@@ -9,7 +9,7 @@ from retrieval_demo.dataloader.chunking.recursive import RecursiveTextSplitterSt
 from retrieval_demo.dataloader.chunking.semantic import SemanticChunkerStrategy
 from retrieval_demo.vectorstore.client import get_weaviate_client
 from retrieval_demo.agent.graph import get_graph
-from eval.langsmith_evaluators import create_langsmith_evaluators
+from retrieval_demo.eval.langsmith_evaluators import create_langsmith_evaluators
 
 logging.basicConfig(
     level=logging.INFO, format="%(asctime)s - %(levelname)s - %(message)s"
