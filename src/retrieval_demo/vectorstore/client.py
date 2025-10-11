@@ -78,6 +78,21 @@ class WeaviateClient:
             self.client.collections.delete(collection_name)
             logger.info(f"Deleted collection: {collection_name}")
 
+    def delete_all_collections(self) -> None:
+        """Delete all collections in the Weaviate instance."""
+        all_collections = self.client.collections.list_all()
+        collection_names = [col.name for col in all_collections.values()]
+
+        if not collection_names:
+            logger.info("No collections to delete")
+            return
+
+        logger.info(f"Deleting {len(collection_names)} collections...")
+        for collection_name in collection_names:
+            self.delete_collection(collection_name)
+
+        logger.info(f"Deleted all {len(collection_names)} collections")
+
     def batch_insert_chunks(self, collection_name: str, chunks: List[Chunk]) -> None:
         """Batch insert chunks into specified collection."""
         if not chunks:

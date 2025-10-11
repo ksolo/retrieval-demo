@@ -2,7 +2,7 @@
 
 import pytest
 from unittest.mock import MagicMock, patch
-from eval.judges import RetrievalRelevanceJudge, GroundednessJudge
+from retrieval_demo.eval.judges import RetrievalRelevanceJudge, GroundednessJudge
 
 
 class TestRetrievalRelevanceJudge:
@@ -11,7 +11,7 @@ class TestRetrievalRelevanceJudge:
     @pytest.fixture
     def mock_openai_client(self):
         """Create a mock OpenAI client."""
-        with patch("eval.judges.OpenAI") as mock_openai_class:
+        with patch("retrieval_demo.eval.judges.OpenAI") as mock_openai_class:
             mock_client = MagicMock()
             mock_openai_class.return_value = mock_client
             yield mock_client
@@ -110,7 +110,7 @@ class TestGroundednessJudge:
     @pytest.fixture
     def mock_openai_client(self):
         """Create a mock OpenAI client."""
-        with patch("eval.judges.OpenAI") as mock_openai_class:
+        with patch("retrieval_demo.eval.judges.OpenAI") as mock_openai_class:
             mock_client = MagicMock()
             mock_openai_class.return_value = mock_client
             yield mock_client

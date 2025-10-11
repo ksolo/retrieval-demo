@@ -22,12 +22,6 @@ def main():
         description="Prepare evaluation dataset and verify collections"
     )
     parser.add_argument(
-        "--samples-per-category",
-        type=int,
-        default=100,
-        help="Number of samples per category (default: 100)",
-    )
-    parser.add_argument(
         "--max-categories",
         type=int,
         default=5,
@@ -45,6 +39,11 @@ def main():
         default="eval/data/categorization_cache.json",
         help="Path to categorization cache (default: eval/data/categorization_cache.json)",
     )
+    parser.add_argument(
+        "--clear-vectorstore",
+        action="store_true",
+        help="Clear all collections in the vector store before ingestion",
+    )
 
     args = parser.parse_args()
 
@@ -53,13 +52,23 @@ def main():
 
     logger.info("Starting dataset preparation...")
 
+    # Step 0: Clear vector store if requested
+    if args.clear_vectorstore:
+        logger.info("Step 0: Clearing vector store")
+        weaviate_client = get_weaviate_client()
+        weaviate_client.delete_all_collections()
+        logger.info("✓ Vector store cleared")
+
     # Step 1: Load and categorize dataset
     logger.info("Step 1: Loading and categorizing dataset")
     loader = RAGDatasetLoader()
     categorizer = Categorizer(model="gpt-5-mini")
 
+    # Hardcoded to 100 samples for demo purposes
+    TARGET_SAMPLES = 100
+
     eval_samples = loader.get_categorized_stratified_sample(
-        samples_per_category=args.samples_per_category,
+        samples_per_category=TARGET_SAMPLES,
         cache_path=args.cache_path,
         max_categories=args.max_categories,
         categorizer=categorizer,

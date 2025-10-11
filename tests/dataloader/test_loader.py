@@ -31,6 +31,17 @@ class TestRAGDatasetLoaderEvalMethods:
         # Support iteration
         mock_train.__iter__ = lambda self: iter(data)
 
+        # Support select() method for subsetting
+        def mock_select(indices):
+            subset_mock = MagicMock()
+            subset_data = [data[i] for i in indices]
+            subset_mock.__len__ = lambda self: len(subset_data)
+            subset_mock.__getitem__ = lambda self, idx: subset_data[idx]
+            subset_mock.__iter__ = lambda self: iter(subset_data)
+            return subset_mock
+
+        mock_train.select = mock_select
+
         # Mock dataset info for versioning
         mock_info = MagicMock()
         mock_info.download_checksums = {
@@ -66,7 +77,7 @@ class TestRAGDatasetLoaderEvalMethods:
     def test_get_categorized_stratified_sample_returns_correct_structure(
         self, loader, mock_dataset
     ):
-        """Test that stratified sampling returns correct data structure."""
+        """Test that greedy sampling returns correct data structure."""
         # Mock categorized dataset
         mock_categorized_ds = Mock()
         categorized_samples = [
@@ -125,8 +136,8 @@ class TestRAGDatasetLoaderEvalMethods:
                         categorizer=mock_categorizer,
                     )
 
-        # Should have sampled 2 per category = 4 samples
-        assert len(result) == 4
+        # With greedy sampling and target=2, should get all from largest category (Cat1 has 3)
+        assert len(result) == 3
 
         # Check structure
         for item in result:
@@ -140,10 +151,10 @@ class TestRAGDatasetLoaderEvalMethods:
             # Check eval_id format
             assert item["eval_id"].startswith("rag12000_")
 
-    def test_get_categorized_stratified_sample_distributes_evenly(
+    def test_get_categorized_stratified_sample_uses_greedy_selection(
         self, loader, mock_dataset
     ):
-        """Test that stratified sampling distributes samples evenly across categories."""
+        """Test that greedy sampling selects from largest categories first."""
         mock_categorized_ds = Mock()
         categorized_samples = [
             {
@@ -172,20 +183,18 @@ class TestRAGDatasetLoaderEvalMethods:
                         categorizer=mock_categorizer,
                     )
 
-        # Count samples per category
-        category_counts = {}
-        for item in result:
-            cat = item["category"]
-            category_counts[cat] = category_counts.get(cat, 0) + 1
+        # With greedy sampling and target=5, should get all 10 from first category (Cat0)
+        # Each category has 10 samples (0,3,6... for Cat0; 1,4,7... for Cat1; etc)
+        assert len(result) == 10
 
-        # Each category should have exactly 5 samples
-        for count in category_counts.values():
-            assert count == 5
+        # All samples should be from Cat0 (the first/largest category encountered)
+        categories = [item["category"] for item in result]
+        assert all(cat == "Cat0" for cat in categories)
 
     def test_get_categorized_stratified_sample_handles_insufficient_samples(
         self, loader, mock_dataset
     ):
-        """Test behavior when a category has fewer samples than requested."""
+        """Test behavior when total samples are fewer than target."""
         mock_categorized_ds = Mock()
         categorized_samples = [
             {
@@ -209,7 +218,6 @@ class TestRAGDatasetLoaderEvalMethods:
                 "answer": "A3",
                 "category": "Cat2",
             },
-            # Cat2 only has 1 sample, but we'll request 5
         ]
         mock_categorized_ds.get_or_create_categories.return_value = categorized_samples
         mock_categorizer = Mock()
@@ -223,12 +231,12 @@ class TestRAGDatasetLoaderEvalMethods:
                     return_value=mock_categorized_ds,
                 ):
                     result = loader.get_categorized_stratified_sample(
-                        samples_per_category=5,
+                        samples_per_category=100,
                         cache_path="/tmp/cache.json",
                         categorizer=mock_categorizer,
                     )
 
-        # Should return what's available: 2 from Cat1, 1 from Cat2
+        # Greedy sampling: takes all from Cat1 (2 samples), then all from Cat2 (1 sample)
         assert len(result) == 3
 
     def test_get_samples_by_ids_returns_correct_samples(self, loader, mock_dataset):

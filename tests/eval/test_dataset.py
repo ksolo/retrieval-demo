@@ -2,7 +2,7 @@
 
 import pytest
 from unittest.mock import Mock, MagicMock, patch
-from eval.dataset import EvalDatasetManager
+from retrieval_demo.eval.dataset import EvalDatasetManager
 
 
 class TestEvalDatasetManager:
@@ -11,7 +11,7 @@ class TestEvalDatasetManager:
     @pytest.fixture
     def mock_langsmith_client(self):
         """Create a mock LangSmith client."""
-        with patch("eval.dataset.Client") as mock_client_class:
+        with patch("retrieval_demo.eval.dataset.Client") as mock_client_class:
             mock_client = MagicMock()
             mock_client_class.return_value = mock_client
             yield mock_client

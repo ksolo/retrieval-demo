@@ -142,30 +142,50 @@ class RAGDatasetLoader:
             by_category[sample["category"]].append(sample)
         return dict(by_category)
 
-    def _stratified_sample(
-        self, by_category: Dict[str, List[Dict[str, Any]]], samples_per_category: int
+    def _greedy_sample_top_categories(
+        self, by_category: Dict[str, List[Dict[str, Any]]], target_samples: int
     ) -> List[Dict[str, Any]]:
-        """Perform stratified sampling across categories.
+        """Greedily sample from top categories until target is reached.
+
+        Selects all samples from the largest category first, then the next largest,
+        and so on until we reach or exceed the target number of samples.
 
         Args:
             by_category: Dictionary mapping category to samples
-            samples_per_category: Number of samples to take per category
+            target_samples: Target number of samples to collect
 
         Returns:
             List of selected samples with eval_id added
         """
-        result = []
-        for category, samples in by_category.items():
-            selected = samples[:samples_per_category]
+        # Sort categories by size (largest first)
+        sorted_categories = sorted(
+            by_category.items(), key=lambda x: len(x[1]), reverse=True
+        )
 
-            # Add eval_id to each sample
-            for sample in selected:
+        result = []
+        total_selected = 0
+        categories_used = 0
+
+        for category, samples in sorted_categories:
+            # Take all samples from this category
+            for sample in samples:
                 sample["eval_id"] = f"rag12000_{sample['original_index']}"
 
-            result.extend(selected)
+            result.extend(samples)
+            total_selected += len(samples)
+            categories_used += 1
+
             logger.info(
-                f"Category '{category}': selected {len(selected)}/{len(samples)} samples"
+                f"Category '{category}': selected {len(samples)} samples (total: {total_selected})"
             )
+
+            # Stop if we've reached the target
+            if total_selected >= target_samples:
+                break
+
+        logger.info(
+            f"Greedy sampling complete: {total_selected} samples from {categories_used} categories"
+        )
 
         return result
 
@@ -176,10 +196,13 @@ class RAGDatasetLoader:
         max_categories: int = 5,
         categorizer: Optional[Categorizer] = None,
     ) -> List[Dict[str, Any]]:
-        """Get stratified sample of categorized dataset.
+        """Get sample of categorized dataset using greedy top-category selection.
+
+        Note: Despite the name 'stratified' in the function name (kept for backwards
+        compatibility), this now uses greedy sampling from the largest categories.
 
         Args:
-            samples_per_category: Number of samples to take per category
+            samples_per_category: Target number of total samples (not per category)
             cache_path: Path to categorization cache file
             max_categories: Maximum number of unique categories
             categorizer: Categorizer instance (optional, creates one if not provided)
@@ -190,8 +213,12 @@ class RAGDatasetLoader:
         dataset = self.load_dataset()
         train_data = dataset["train"]
 
+        # Only take first 1000 samples for categorization
+        subset_size = min(1000, len(train_data))
+        train_subset = train_data.select(range(subset_size))
+
         # Convert to indexed dicts
-        full_dataset = self._convert_to_dict_with_index(train_data)
+        full_dataset = self._convert_to_dict_with_index(train_subset)
         logger.info(f"Loaded {len(full_dataset)} samples for categorization")
 
         # Categorize
@@ -209,11 +236,11 @@ class RAGDatasetLoader:
         )
         logger.info(f"Categorized dataset has {len(categorized)} samples")
 
-        # Stratified sampling
+        # Greedy sampling from top categories
         by_category = self._group_by_category(categorized)
-        result = self._stratified_sample(by_category, samples_per_category)
+        result = self._greedy_sample_top_categories(by_category, samples_per_category)
 
-        logger.info(f"Stratified sample complete: {len(result)} total samples")
+        logger.info(f"Sample complete: {len(result)} total samples")
         return result
 
     def _parse_eval_id(self, eval_id: str) -> Optional[int]:

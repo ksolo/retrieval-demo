@@ -50,8 +50,7 @@ class Categorizer:
             )
 
             response = self.client.chat.completions.create(
-                model=self.model,
-                messages=[{"role": "user", "content": prompt}]
+                model=self.model, messages=[{"role": "user", "content": prompt}]
             )
 
             category = response.choices[0].message.content.strip()

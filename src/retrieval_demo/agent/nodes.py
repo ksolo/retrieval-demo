@@ -1,6 +1,6 @@
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage
-from ...vectorstore.client import get_weaviate_client
+from retrieval_demo.vectorstore.client import get_weaviate_client
 from .agent_state import AgentState
 from .retrievers import make_retriever
 

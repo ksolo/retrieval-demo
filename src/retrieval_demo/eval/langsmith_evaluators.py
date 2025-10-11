@@ -1,7 +1,7 @@
 """LangSmith evaluator functions for retrieval evaluation."""
 
-from eval.judges import RetrievalRelevanceJudge, GroundednessJudge
-from eval.metrics import MetricsCalculator
+from retrieval_demo.eval.judges import RetrievalRelevanceJudge, GroundednessJudge
+from retrieval_demo.eval.metrics import MetricsCalculator
 
 
 def create_langsmith_evaluators(judge_model: str = "gpt-5-mini"):

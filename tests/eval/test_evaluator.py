@@ -2,8 +2,8 @@
 
 import pytest
 from unittest.mock import Mock, MagicMock
-from eval.evaluator import StrategyEvaluator
-from eval.metrics import RetrievalMetrics, AggregateMetrics
+from retrieval_demo.eval.evaluator import StrategyEvaluator
+from retrieval_demo.eval.metrics import RetrievalMetrics, AggregateMetrics
 
 
 class TestStrategyEvaluator:
