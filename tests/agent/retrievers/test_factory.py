@@ -1,10 +1,12 @@
 """Unit tests for retriever factory."""
 
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 import pytest
 
 from src.retrieval_demo.agent.retrievers.factory import make_retriever
 from src.retrieval_demo.agent.retrievers.semantic import SemanticRetriever
+from src.retrieval_demo.agent.retrievers.rerank import RerankRetriever
+from src.retrieval_demo.agent.retrievers.hybrid import HybridRetriever
 
 
 class TestRetrieverFactory:
@@ -28,10 +30,35 @@ class TestRetrieverFactory:
         assert retriever.client == mock_client
         assert retriever.collection_name == "test_collection"
 
-    def test_make_retriever_rerank_not_implemented(self, mock_client):
-        """Test that rerank strategy raises NotImplementedError."""
+    @patch("src.retrieval_demo.agent.retrievers.factory.os.getenv")
+    def test_make_retriever_creates_rerank_retriever(self, mock_getenv, mock_client):
+        """Test that factory creates RerankRetriever for rerank strategy."""
+        mock_getenv.return_value = "test-cohere-api-key"
+
+        retriever = make_retriever(
+            client=mock_client,
+            collection_name="test_collection",
+            strategy="rerank",
+        )
+
+        # Verify correct retriever type
+        assert isinstance(retriever, RerankRetriever)
+        assert retriever.client == mock_client
+        assert retriever.collection_name == "test_collection"
+
+        # Verify environment variable was checked
+        mock_getenv.assert_called_once_with("COHERE_API_KEY")
+
+    @patch("src.retrieval_demo.agent.retrievers.factory.os.getenv")
+    def test_make_retriever_rerank_raises_error_without_api_key(
+        self, mock_getenv, mock_client
+    ):
+        """Test that rerank strategy raises ValueError when COHERE_API_KEY is missing."""
+        mock_getenv.return_value = None
+
         with pytest.raises(
-            NotImplementedError, match="Rerank retriever not yet implemented"
+            ValueError,
+            match="COHERE_API_KEY environment variable is required for rerank strategy",
         ):
             make_retriever(
                 client=mock_client,
@@ -50,16 +77,18 @@ class TestRetrieverFactory:
                 strategy="multiquery",
             )
 
-    def test_make_retriever_hybrid_not_implemented(self, mock_client):
-        """Test that hybrid strategy raises NotImplementedError."""
-        with pytest.raises(
-            NotImplementedError, match="Hybrid retriever not yet implemented"
-        ):
-            make_retriever(
-                client=mock_client,
-                collection_name="test_collection",
-                strategy="hybrid",
-            )
+    def test_make_retriever_creates_hybrid_retriever(self, mock_client):
+        """Test that factory creates HybridRetriever for hybrid strategy."""
+        retriever = make_retriever(
+            client=mock_client,
+            collection_name="test_collection",
+            strategy="hybrid",
+        )
+
+        # Verify correct retriever type
+        assert isinstance(retriever, HybridRetriever)
+        assert retriever.client == mock_client
+        assert retriever.collection_name == "test_collection"
 
     def test_make_retriever_invalid_strategy_raises_error(self, mock_client):
         """Test that invalid strategy raises ValueError."""

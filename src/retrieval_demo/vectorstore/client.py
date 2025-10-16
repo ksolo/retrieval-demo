@@ -167,6 +167,53 @@ class WeaviateClient:
         logger.info(f"Found {len(results)} results for query in {collection_name}")
         return results
 
+    def hybrid_search(
+        self, collection_name: str, query: str, limit: int
+    ) -> List[Dict[str, Any]]:
+        """
+        Perform hybrid search combining vector similarity and BM25 keyword search.
+
+        Uses alpha=0.5 for balanced weighting between vector search (alpha=1.0)
+        and BM25 keyword search (alpha=0.0).
+
+        Args:
+            collection_name: Name of the collection to search
+            query: Query text to search for
+            limit: Maximum number of results to return
+
+        Returns:
+            List of dictionaries containing properties and metadata from Weaviate
+
+        Raises:
+            ValueError: If collection does not exist
+        """
+        if not self.collection_exists(collection_name):
+            raise ValueError(f"Collection {collection_name} does not exist")
+
+        collection = self.client.collections.get(collection_name)
+
+        # Perform hybrid query with balanced alpha (0.5)
+        response = collection.query.hybrid(
+            query=query, limit=limit, alpha=0.5, return_metadata=MetadataQuery(score=True)
+        )
+
+        # Convert Weaviate objects to dicts
+        results = []
+        for obj in response.objects:
+            result = {
+                "properties": obj.properties,
+                "metadata": {
+                    "uuid": str(obj.uuid),
+                    "hybrid_score": obj.metadata.score if obj.metadata else None,
+                },
+            }
+            results.append(result)
+
+        logger.info(
+            f"Found {len(results)} hybrid search results for query in {collection_name}"
+        )
+        return results
+
 
 @cache
 def get_weaviate_client() -> WeaviateClient:

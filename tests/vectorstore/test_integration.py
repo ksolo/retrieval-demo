@@ -190,3 +190,84 @@ class TestWeaviateClientIntegration:
         finally:
             client.delete_collection(test_collection_name)
             client.close()
+
+    def test_hybrid_search_returns_relevant_results(
+        self, client, test_collection_name, sample_chunks
+    ):
+        """Test hybrid search returns relevant results."""
+        try:
+            # Setup: create collection and insert chunks
+            client.create_collection(test_collection_name)
+            client.batch_insert_chunks(test_collection_name, sample_chunks)
+
+            # Perform hybrid search
+            results = client.hybrid_search(
+                collection_name=test_collection_name, query="first test chunk", limit=2
+            )
+
+            # Assertions
+            assert len(results) == 2
+            assert all("properties" in r for r in results)
+            assert all("metadata" in r for r in results)
+
+            # First result should have text field
+            assert "text" in results[0]["properties"]
+            assert "document_id" in results[0]["properties"]
+
+            # Metadata should have hybrid_score and uuid
+            assert "hybrid_score" in results[0]["metadata"]
+            assert "uuid" in results[0]["metadata"]
+
+        finally:
+            client.delete_collection(test_collection_name)
+            client.close()
+
+    def test_hybrid_search_respects_limit(self, client, test_collection_name):
+        """Test hybrid search respects limit parameter."""
+        try:
+            # Setup: create collection with multiple chunks
+            client.create_collection(test_collection_name)
+            chunks = [
+                Chunk(
+                    text=f"Test chunk number {i} with some content.",
+                    metadata=ChunkMetadata(document_id=1, chunk_index=i, chunk_size=30),
+                )
+                for i in range(5)
+            ]
+            client.batch_insert_chunks(test_collection_name, chunks)
+
+            # Search with limit
+            results = client.hybrid_search(
+                collection_name=test_collection_name, query="test chunk", limit=3
+            )
+
+            assert len(results) == 3
+
+        finally:
+            client.delete_collection(test_collection_name)
+            client.close()
+
+    def test_hybrid_search_nonexistent_collection(self, client):
+        """Test hybrid search on non-existent collection raises ValueError."""
+        try:
+            with pytest.raises(ValueError, match="Collection nonexistent_collection does not exist"):
+                client.hybrid_search(
+                    collection_name="nonexistent_collection", query="test query", limit=5
+                )
+        finally:
+            client.close()
+
+    def test_hybrid_search_empty_collection(self, client, test_collection_name):
+        """Test hybrid search on empty collection returns empty list."""
+        try:
+            client.create_collection(test_collection_name)
+
+            results = client.hybrid_search(
+                collection_name=test_collection_name, query="test query", limit=5
+            )
+
+            assert results == []
+
+        finally:
+            client.delete_collection(test_collection_name)
+            client.close()

@@ -1,11 +1,14 @@
 """Factory for creating retriever instances based on strategy."""
 
 import logging
+import os
 from typing import Literal
 
 from ...vectorstore.client import WeaviateClient
 from .base import Retriever
 from .semantic import SemanticRetriever
+from .rerank import RerankRetriever
+from .hybrid import HybridRetriever
 
 logger = logging.getLogger(__name__)
 
@@ -39,16 +42,23 @@ def make_retriever(
         return SemanticRetriever(client=client, collection_name=collection_name)
 
     elif strategy == "rerank":
-        # TODO: Implement RerankRetriever
-        raise NotImplementedError("Rerank retriever not yet implemented")
+        logger.info(f"Creating RerankRetriever for collection: {collection_name}")
+        cohere_api_key = os.getenv("COHERE_API_KEY")
+        if not cohere_api_key:
+            raise ValueError(
+                "COHERE_API_KEY environment variable is required for rerank strategy"
+            )
+        return RerankRetriever(
+            client=client, collection_name=collection_name, cohere_api_key=cohere_api_key
+        )
 
     elif strategy == "multiquery":
         # TODO: Implement MultiQueryRetriever
         raise NotImplementedError("MultiQuery retriever not yet implemented")
 
     elif strategy == "hybrid":
-        # TODO: Implement HybridRetriever
-        raise NotImplementedError("Hybrid retriever not yet implemented")
+        logger.info(f"Creating HybridRetriever for collection: {collection_name}")
+        return HybridRetriever(client=client, collection_name=collection_name)
 
     else:
         raise ValueError(
