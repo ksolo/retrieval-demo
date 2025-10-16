@@ -1,0 +1,708 @@
+{
+  "dataset_version": {
+    "id": "586c0d0ddeb022fccd909c7b415cc2ca8660baa4",
+    "last_updated": "2025-10-15T23:42:47.396264"
+  },
+  "samples": [
+    {
+      "index": 0,
+      "category": "Agriculture"
+    },
+    {
+      "index": 1,
+      "category": "Environment"
+    },
+    {
+      "index": 2,
+      "category": "Technology"
+    },
+    {
+      "index": 3,
+      "category": "Economics"
+    },
+    {
+      "index": 4,
+      "category": "Sports"
+    },
+    {
+      "index": 5,
+      "category": "Technology"
+    },
+    {
+      "index": 6,
+      "category": "Sports"
+    },
+    {
+      "index": 7,
+      "category": "Technology"
+    },
+    {
+      "index": 8,
+      "category": "Sports"
+    },
+    {
+      "index": 9,
+      "category": "Technology"
+    },
+    {
+      "index": 10,
+      "category": "Sports"
+    },
+    {
+      "index": 11,
+      "category": "Economics"
+    },
+    {
+      "index": 12,
+      "category": "Technology"
+    },
+    {
+      "index": 13,
+      "category": "Sports"
+    },
+    {
+      "index": 14,
+      "category": "Sports"
+    },
+    {
+      "index": 15,
+      "category": "Technology"
+    },
+    {
+      "index": 16,
+      "category": "Technology"
+    },
+    {
+      "index": 17,
+      "category": "Technology"
+    },
+    {
+      "index": 18,
+      "category": "Technology"
+    },
+    {
+      "index": 19,
+      "category": "Technology"
+    },
+    {
+      "index": 20,
+      "category": "Sports"
+    },
+    {
+      "index": 21,
+      "category": "Technology"
+    },
+    {
+      "index": 22,
+      "category": "Technology"
+    },
+    {
+      "index": 23,
+      "category": "Environment"
+    },
+    {
+      "index": 24,
+      "category": "Technology"
+    },
+    {
+      "index": 25,
+      "category": "Sports"
+    },
+    {
+      "index": 26,
+      "category": "Sports"
+    },
+    {
+      "index": 27,
+      "category": "Technology"
+    },
+    {
+      "index": 28,
+      "category": "Technology"
+    },
+    {
+      "index": 29,
+      "category": "Sports"
+    },
+    {
+      "index": 30,
+      "category": "Technology"
+    },
+    {
+      "index": 31,
+      "category": "Technology"
+    },
+    {
+      "index": 32,
+      "category": "Technology"
+    },
+    {
+      "index": 33,
+      "category": "Technology"
+    },
+    {
+      "index": 34,
+      "category": "Technology"
+    },
+    {
+      "index": 35,
+      "category": "Technology"
+    },
+    {
+      "index": 36,
+      "category": "Sports"
+    },
+    {
+      "index": 37,
+      "category": "Sports"
+    },
+    {
+      "index": 38,
+      "category": "Sports"
+    },
+    {
+      "index": 39,
+      "category": "Sports"
+    },
+    {
+      "index": 40,
+      "category": "Technology"
+    },
+    {
+      "index": 41,
+      "category": "Technology"
+    },
+    {
+      "index": 42,
+      "category": "Environment"
+    },
+    {
+      "index": 43,
+      "category": "Technology"
+    },
+    {
+      "index": 44,
+      "category": "Sports"
+    },
+    {
+      "index": 45,
+      "category": "Sports"
+    },
+    {
+      "index": 46,
+      "category": "Economics"
+    },
+    {
+      "index": 47,
+      "category": "Sports"
+    },
+    {
+      "index": 48,
+      "category": "Technology"
+    },
+    {
+      "index": 49,
+      "category": "Technology"
+    },
+    {
+      "index": 50,
+      "category": "Environment"
+    },
+    {
+      "index": 51,
+      "category": "Technology"
+    },
+    {
+      "index": 52,
+      "category": "Technology"
+    },
+    {
+      "index": 53,
+      "category": "Sports"
+    },
+    {
+      "index": 54,
+      "category": "Technology"
+    },
+    {
+      "index": 55,
+      "category": "Technology"
+    },
+    {
+      "index": 56,
+      "category": "Technology"
+    },
+    {
+      "index": 57,
+      "category": "Sports"
+    },
+    {
+      "index": 58,
+      "category": "Technology"
+    },
+    {
+      "index": 59,
+      "category": "Technology"
+    },
+    {
+      "index": 60,
+      "category": "Technology"
+    },
+    {
+      "index": 61,
+      "category": "Technology"
+    },
+    {
+      "index": 62,
+      "category": "Sports"
+    },
+    {
+      "index": 63,
+      "category": "Technology"
+    },
+    {
+      "index": 64,
+      "category": "Technology"
+    },
+    {
+      "index": 65,
+      "category": "Technology"
+    },
+    {
+      "index": 66,
+      "category": "Technology"
+    },
+    {
+      "index": 67,
+      "category": "Sports"
+    },
+    {
+      "index": 68,
+      "category": "Technology"
+    },
+    {
+      "index": 69,
+      "category": "Technology"
+    },
+    {
+      "index": 70,
+      "category": "Sports"
+    },
+    {
+      "index": 71,
+      "category": "Sports"
+    },
+    {
+      "index": 72,
+      "category": "Sports"
+    },
+    {
+      "index": 73,
+      "category": "Sports"
+    },
+    {
+      "index": 74,
+      "category": "Technology"
+    },
+    {
+      "index": 75,
+      "category": "Sports"
+    },
+    {
+      "index": 76,
+      "category": "Technology"
+    },
+    {
+      "index": 77,
+      "category": "Sports"
+    },
+    {
+      "index": 78,
+      "category": "Technology"
+    },
+    {
+      "index": 79,
+      "category": "Sports"
+    },
+    {
+      "index": 80,
+      "category": "Technology"
+    },
+    {
+      "index": 81,
+      "category": "Sports"
+    },
+    {
+      "index": 82,
+      "category": "Technology"
+    },
+    {
+      "index": 83,
+      "category": "Sports"
+    },
+    {
+      "index": 84,
+      "category": "Technology"
+    },
+    {
+      "index": 85,
+      "category": "Sports"
+    },
+    {
+      "index": 86,
+      "category": "Sports"
+    },
+    {
+      "index": 87,
+      "category": "Environment"
+    },
+    {
+      "index": 88,
+      "category": "Sports"
+    },
+    {
+      "index": 89,
+      "category": "Environment"
+    },
+    {
+      "index": 90,
+      "category": "Sports"
+    },
+    {
+      "index": 91,
+      "category": "Sports"
+    },
+    {
+      "index": 92,
+      "category": "Sports"
+    },
+    {
+      "index": 93,
+      "category": "Technology"
+    },
+    {
+      "index": 94,
+      "category": "Technology"
+    },
+    {
+      "index": 95,
+      "category": "Technology"
+    },
+    {
+      "index": 96,
+      "category": "Technology"
+    },
+    {
+      "index": 97,
+      "category": "Agriculture"
+    },
+    {
+      "index": 98,
+      "category": "Technology"
+    },
+    {
+      "index": 99,
+      "category": "Sports"
+    },
+    {
+      "index": 100,
+      "category": "Economics"
+    },
+    {
+      "index": 101,
+      "category": "Sports"
+    },
+    {
+      "index": 102,
+      "category": "Sports"
+    },
+    {
+      "index": 103,
+      "category": "Sports"
+    },
+    {
+      "index": 104,
+      "category": "Technology"
+    },
+    {
+      "index": 105,
+      "category": "Sports"
+    },
+    {
+      "index": 106,
+      "category": "Technology"
+    },
+    {
+      "index": 107,
+      "category": "Technology"
+    },
+    {
+      "index": 108,
+      "category": "Technology"
+    },
+    {
+      "index": 109,
+      "category": "Technology"
+    },
+    {
+      "index": 110,
+      "category": "Technology"
+    },
+    {
+      "index": 111,
+      "category": "Technology"
+    },
+    {
+      "index": 112,
+      "category": "Technology"
+    },
+    {
+      "index": 113,
+      "category": "Technology"
+    },
+    {
+      "index": 114,
+      "category": "Agriculture"
+    },
+    {
+      "index": 115,
+      "category": "Technology"
+    },
+    {
+      "index": 116,
+      "category": "Technology"
+    },
+    {
+      "index": 117,
+      "category": "Technology"
+    },
+    {
+      "index": 118,
+      "category": "Sports"
+    },
+    {
+      "index": 119,
+      "category": "Technology"
+    },
+    {
+      "index": 120,
+      "category": "Technology"
+    },
+    {
+      "index": 121,
+      "category": "Technology"
+    },
+    {
+      "index": 122,
+      "category": "Sports"
+    },
+    {
+      "index": 123,
+      "category": "Sports"
+    },
+    {
+      "index": 124,
+      "category": "Technology"
+    },
+    {
+      "index": 125,
+      "category": "Technology"
+    },
+    {
+      "index": 126,
+      "category": "Technology"
+    },
+    {
+      "index": 127,
+      "category": "Technology"
+    },
+    {
+      "index": 128,
+      "category": "Sports"
+    },
+    {
+      "index": 129,
+      "category": "Technology"
+    },
+    {
+      "index": 130,
+      "category": "Technology"
+    },
+    {
+      "index": 131,
+      "category": "Sports"
+    },
+    {
+      "index": 132,
+      "category": "Sports"
+    },
+    {
+      "index": 133,
+      "category": "Technology"
+    },
+    {
+      "index": 134,
+      "category": "Technology"
+    },
+    {
+      "index": 135,
+      "category": "Technology"
+    },
+    {
+      "index": 136,
+      "category": "Technology"
+    },
+    {
+      "index": 137,
+      "category": "Technology"
+    },
+    {
+      "index": 138,
+      "category": "Technology"
+    },
+    {
+      "index": 139,
+      "category": "Sports"
+    },
+    {
+      "index": 140,
+      "category": "Sports"
+    },
+    {
+      "index": 141,
+      "category": "Technology"
+    },
+    {
+      "index": 142,
+      "category": "Sports"
+    },
+    {
+      "index": 143,
+      "category": "Technology"
+    },
+    {
+      "index": 144,
+      "category": "Technology"
+    },
+    {
+      "index": 145,
+      "category": "Technology"
+    },
+    {
+      "index": 146,
+      "category": "Environment"
+    },
+    {
+      "index": 147,
+      "category": "Technology"
+    },
+    {
+      "index": 148,
+      "category": "Sports"
+    },
+    {
+      "index": 149,
+      "category": "Technology"
+    },
+    {
+      "index": 150,
+      "category": "Sports"
+    },
+    {
+      "index": 151,
+      "category": "Technology"
+    },
+    {
+      "index": 152,
+      "category": "Sports"
+    },
+    {
+      "index": 153,
+      "category": "Sports"
+    },
+    {
+      "index": 154,
+      "category": "Sports"
+    },
+    {
+      "index": 155,
+      "category": "Sports"
+    },
+    {
+      "index": 156,
+      "category": "Sports"
+    },
+    {
+      "index": 157,
+      "category": "Sports"
+    },
+    {
+      "index": 158,
+      "category": "Technology"
+    },
+    {
+      "index": 159,
+      "category": "Technology"
+    },
+    {
+      "index": 160,
+      "category": "Sports"
+    },
+    {
+      "index": 161,
+      "category": "Technology"
+    },
+    {
+      "index": 162,
+      "category": "Sports"
+    },
+    {
+      "index": 163,
+      "category": "Technology"
+    },
+    {
+      "index": 164,
+      "category": "Sports"
+    },
+    {
+      "index": 165,
+      "category": "Technology"
+    },
+    {
+      "index": 166,
+      "category": "Sports"
+    },
+    {
+      "index": 167,
+      "category": "Technology"
+    },
+    {
+      "index": 168,
+      "category": "Technology"
+    },
+    {
+      "index": 169,
+      "category": "Technology"
+    },
+    {
+      "index": 170,
+      "category": "Sports"
+    },
+    {
+      "index": 171,
+      "category": "Sports"
+    },
+    {
+      "index": 172,
+      "category": "Technology"
+    },
+    {
+      "index": 173,
+      "category": "Sports"
+    },
+    {
+      "index": 174,
+      "category": "Technology"
+    }
+  ]
+}

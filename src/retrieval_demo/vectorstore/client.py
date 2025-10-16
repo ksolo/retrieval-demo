@@ -56,7 +56,7 @@ class WeaviateClient:
                     name="text", data_type=weaviate.classes.config.DataType.TEXT
                 ),
                 weaviate.classes.config.Property(
-                    name="document_id", data_type=weaviate.classes.config.DataType.INT
+                    name="document_id", data_type=weaviate.classes.config.DataType.TEXT
                 ),
                 weaviate.classes.config.Property(
                     name="chunk_index", data_type=weaviate.classes.config.DataType.INT
