@@ -7,6 +7,7 @@ from src.retrieval_demo.agent.retrievers.factory import make_retriever
 from src.retrieval_demo.agent.retrievers.semantic import SemanticRetriever
 from src.retrieval_demo.agent.retrievers.rerank import RerankRetriever
 from src.retrieval_demo.agent.retrievers.hybrid import HybridRetriever
+from src.retrieval_demo.agent.retrievers.multiquery import MultiQueryRetriever
 
 
 class TestRetrieverFactory:
@@ -66,10 +67,35 @@ class TestRetrieverFactory:
                 strategy="rerank",
             )
 
-    def test_make_retriever_multiquery_not_implemented(self, mock_client):
-        """Test that multiquery strategy raises NotImplementedError."""
+    @patch("src.retrieval_demo.agent.retrievers.factory.os.getenv")
+    def test_make_retriever_creates_multiquery_retriever(self, mock_getenv, mock_client):
+        """Test that factory creates MultiQueryRetriever for multiquery strategy."""
+        mock_getenv.return_value = "test-openai-api-key"
+
+        retriever = make_retriever(
+            client=mock_client,
+            collection_name="test_collection",
+            strategy="multiquery",
+        )
+
+        # Verify correct retriever type
+        assert isinstance(retriever, MultiQueryRetriever)
+        assert retriever.client == mock_client
+        assert retriever.collection_name == "test_collection"
+
+        # Verify environment variable was checked (may be called multiple times by ChatOpenAI init)
+        assert any(call[0][0] == "OPENAI_API_KEY" for call in mock_getenv.call_args_list)
+
+    @patch("src.retrieval_demo.agent.retrievers.factory.os.getenv")
+    def test_make_retriever_multiquery_raises_error_without_api_key(
+        self, mock_getenv, mock_client
+    ):
+        """Test that multiquery strategy raises ValueError when OPENAI_API_KEY is missing."""
+        mock_getenv.return_value = None
+
         with pytest.raises(
-            NotImplementedError, match="MultiQuery retriever not yet implemented"
+            ValueError,
+            match="OPENAI_API_KEY environment variable is required for multiquery strategy",
         ):
             make_retriever(
                 client=mock_client,

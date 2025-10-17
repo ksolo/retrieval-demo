@@ -9,6 +9,7 @@ from .base import Retriever
 from .semantic import SemanticRetriever
 from .rerank import RerankRetriever
 from .hybrid import HybridRetriever
+from .multiquery import MultiQueryRetriever
 
 logger = logging.getLogger(__name__)
 
@@ -53,8 +54,15 @@ def make_retriever(
         )
 
     elif strategy == "multiquery":
-        # TODO: Implement MultiQueryRetriever
-        raise NotImplementedError("MultiQuery retriever not yet implemented")
+        logger.info(f"Creating MultiQueryRetriever for collection: {collection_name}")
+        openai_api_key = os.getenv("OPENAI_API_KEY")
+        if not openai_api_key:
+            raise ValueError(
+                "OPENAI_API_KEY environment variable is required for multiquery strategy"
+            )
+        return MultiQueryRetriever(
+            client=client, collection_name=collection_name, openai_api_key=openai_api_key
+        )
 
     elif strategy == "hybrid":
         logger.info(f"Creating HybridRetriever for collection: {collection_name}")

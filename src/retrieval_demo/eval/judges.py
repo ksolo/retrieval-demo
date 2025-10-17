@@ -1,8 +1,8 @@
 """LLM judges for evaluating retrieval and answer quality."""
 
 import logging
-from typing import List, Dict, Any, Optional
-from openai import OpenAI
+from typing import List, Dict, Any
+from openevals import create_llm_as_judge
 from openevals.prompts import RAG_RETRIEVAL_RELEVANCE_PROMPT, RAG_GROUNDEDNESS_PROMPT
 
 logger = logging.getLogger(__name__)
@@ -11,15 +11,18 @@ logger = logging.getLogger(__name__)
 class RetrievalRelevanceJudge:
     """Judge for evaluating retrieval relevance using LLM."""
 
-    def __init__(self, model: str = "gpt-4o-mini", api_key: Optional[str] = None):
+    def __init__(self, model: str = "gpt-4o-mini"):
         """Initialize with OpenAI model.
 
         Args:
-            model: OpenAI model to use for judging
-            api_key: OpenAI API key. If None, uses OPENAI_API_KEY env var.
+            model: Model name to use for judging (e.g., "gpt-4o-mini", "gpt-5-mini")
         """
-        self.model = model
-        self.client = OpenAI(api_key=api_key)
+        # Create judge using openevals
+        self.judge_fn = create_llm_as_judge(
+            prompt=RAG_RETRIEVAL_RELEVANCE_PROMPT,
+            model=f"openai:{model}",
+            feedback_key="retrieval_relevance",
+        )
 
     def judge(self, question: str, retrieved_chunks: List[Dict[str, Any]]) -> float:
         """Judge the relevance of retrieved chunks to the question.
@@ -35,27 +38,16 @@ class RetrievalRelevanceJudge:
             # Format context from retrieved chunks
             context = "\n\n".join([chunk["text"] for chunk in retrieved_chunks])
 
-            # Use openevals RAG_RETRIEVAL_RELEVANCE_PROMPT
-            messages = [
-                {"role": "system", "content": RAG_RETRIEVAL_RELEVANCE_PROMPT},
-                {
-                    "role": "user",
-                    "content": f"Context:\n{context}\n\nQuestion: {question}",
-                },
-            ]
+            # Call the judge with inputs and context
+            result = self.judge_fn(inputs=question, context=context)
 
-            response = self.client.chat.completions.create(
-                model=self.model, messages=messages, temperature=0.0
-            )
+            # Extract score from result
+            score = result.get("score", 0.0)
 
-            # Parse score from response
-            score_text = response.choices[0].message.content.strip()
-            score = float(score_text)
+            # Ensure it's a float and clamp to 0-1 range
+            return max(0.0, min(1.0, float(score)))
 
-            # Clamp to 0-1 range
-            return max(0.0, min(1.0, score))
-
-        except (ValueError, AttributeError) as e:
+        except (ValueError, AttributeError, TypeError) as e:
             logger.error(f"Failed to parse relevance score: {e}")
             return 0.0
         except Exception as e:
@@ -66,15 +58,18 @@ class RetrievalRelevanceJudge:
 class GroundednessJudge:
     """Judge for evaluating answer groundedness using LLM."""
 
-    def __init__(self, model: str = "gpt-4o-mini", api_key: Optional[str] = None):
+    def __init__(self, model: str = "gpt-4o-mini"):
         """Initialize with OpenAI model.
 
         Args:
-            model: OpenAI model to use for judging
-            api_key: OpenAI API key. If None, uses OPENAI_API_KEY env var.
+            model: Model name to use for judging (e.g., "gpt-4o-mini", "gpt-5-mini")
         """
-        self.model = model
-        self.client = OpenAI(api_key=api_key)
+        # Create judge using openevals
+        self.judge_fn = create_llm_as_judge(
+            prompt=RAG_GROUNDEDNESS_PROMPT,
+            model=f"openai:{model}",
+            feedback_key="groundedness",
+        )
 
     def judge(self, answer: str, retrieved_chunks: List[Dict[str, Any]]) -> float:
         """Judge whether the answer is grounded in the retrieved chunks.
@@ -90,24 +85,16 @@ class GroundednessJudge:
             # Format context from retrieved chunks
             context = "\n\n".join([chunk["text"] for chunk in retrieved_chunks])
 
-            # Use openevals RAG_GROUNDEDNESS_PROMPT
-            messages = [
-                {"role": "system", "content": RAG_GROUNDEDNESS_PROMPT},
-                {"role": "user", "content": f"Context:\n{context}\n\nAnswer: {answer}"},
-            ]
+            # Call the judge with outputs and context
+            result = self.judge_fn(outputs=answer, context=context)
 
-            response = self.client.chat.completions.create(
-                model=self.model, messages=messages, temperature=0.0
-            )
+            # Extract score from result
+            score = result.get("score", 0.0)
 
-            # Parse score from response
-            score_text = response.choices[0].message.content.strip()
-            score = float(score_text)
+            # Ensure it's a float and clamp to 0-1 range
+            return max(0.0, min(1.0, float(score)))
 
-            # Clamp to 0-1 range
-            return max(0.0, min(1.0, score))
-
-        except (ValueError, AttributeError) as e:
+        except (ValueError, AttributeError, TypeError) as e:
             logger.error(f"Failed to parse groundedness score: {e}")
             return 0.0
         except Exception as e:

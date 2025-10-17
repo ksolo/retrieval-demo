@@ -66,8 +66,7 @@ def main():
 
     # Step 2: Define retrieval strategies to evaluate
     logger.info("Step 2: Defining retrieval strategies")
-    retrieval_strategies = ["semantic"]  # Only semantic is implemented for now
-    # When other strategies are implemented, add: "rerank", "multiquery", "hybrid"
+    retrieval_strategies = ["semantic", "rerank", "multiquery", "hybrid"]
 
     logger.info(f"Evaluating {len(retrieval_strategies)} retrieval strategies")
 

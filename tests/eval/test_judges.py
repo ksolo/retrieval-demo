@@ -9,14 +9,6 @@ class TestRetrievalRelevanceJudge:
     """Tests for RetrievalRelevanceJudge."""
 
     @pytest.fixture
-    def mock_openai_client(self):
-        """Create a mock OpenAI client."""
-        with patch("retrieval_demo.eval.judges.OpenAI") as mock_openai_class:
-            mock_client = MagicMock()
-            mock_openai_class.return_value = mock_client
-            yield mock_client
-
-    @pytest.fixture
     def retrieved_chunks(self):
         """Sample retrieved chunks."""
         return [
@@ -34,13 +26,14 @@ class TestRetrievalRelevanceJudge:
             },
         ]
 
-    def test_judge_relevance_returns_score(self, mock_openai_client, retrieved_chunks):
+    @patch("retrieval_demo.eval.judges.create_llm_as_judge")
+    def test_judge_relevance_returns_score(
+        self, mock_create_judge, retrieved_chunks
+    ):
         """Test that judge returns relevance score."""
-        # Mock response with score
-        mock_response = MagicMock()
-        mock_response.choices = [MagicMock()]
-        mock_response.choices[0].message.content = "0.8"
-        mock_openai_client.chat.completions.create.return_value = mock_response
+        # Mock the judge function to return a score
+        mock_judge_fn = MagicMock(return_value={"score": 0.8})
+        mock_create_judge.return_value = mock_judge_fn
 
         judge = RetrievalRelevanceJudge(model="gpt-4o-mini")
         score = judge.judge(
@@ -48,40 +41,46 @@ class TestRetrievalRelevanceJudge:
         )
 
         assert score == 0.8
-        mock_openai_client.chat.completions.create.assert_called_once()
+        # Verify judge function was called
+        mock_judge_fn.assert_called_once()
 
-    def test_judge_relevance_uses_correct_prompt(
-        self, mock_openai_client, retrieved_chunks
+    @patch("retrieval_demo.eval.judges.create_llm_as_judge")
+    def test_judge_relevance_uses_correct_parameters(
+        self, mock_create_judge, retrieved_chunks
     ):
-        """Test that judge uses RAG_RETRIEVAL_RELEVANCE_PROMPT."""
-        mock_response = MagicMock()
-        mock_response.choices = [MagicMock()]
-        mock_response.choices[0].message.content = "0.9"
-        mock_openai_client.chat.completions.create.return_value = mock_response
+        """Test that judge calls judge_fn with correct parameters."""
+        mock_judge_fn = MagicMock(return_value={"score": 0.9})
+        mock_create_judge.return_value = mock_judge_fn
 
         judge = RetrievalRelevanceJudge(model="gpt-4o-mini")
         judge.judge(
             question="What is the capital of France?", retrieved_chunks=retrieved_chunks
         )
 
-        # Verify prompt contains expected elements
-        call_args = mock_openai_client.chat.completions.create.call_args
-        messages = call_args.kwargs["messages"]
+        # Verify judge_fn was called with inputs and context
+        call_kwargs = mock_judge_fn.call_args.kwargs
+        assert call_kwargs["inputs"] == "What is the capital of France?"
+        assert "Paris is the capital of France" in call_kwargs["context"]
+        assert "Berlin is the capital of Germany" in call_kwargs["context"]
 
-        # Should have system and user message
-        assert len(messages) >= 2
+    @patch("retrieval_demo.eval.judges.create_llm_as_judge")
+    def test_judge_initializes_with_correct_model(self, mock_create_judge):
+        """Test that judge initializes create_llm_as_judge with correct model."""
+        mock_judge_fn = MagicMock(return_value={"score": 0.5})
+        mock_create_judge.return_value = mock_judge_fn
 
-        # Check that context chunks are included
-        user_message = messages[-1]["content"]
-        assert "Paris is the capital of France" in user_message
-        assert "What is the capital of France?" in user_message
+        RetrievalRelevanceJudge(model="gpt-5-mini")
 
-    def test_judge_handles_invalid_score(self, mock_openai_client, retrieved_chunks):
+        # Verify create_llm_as_judge was called with correct model format
+        call_kwargs = mock_create_judge.call_args.kwargs
+        assert call_kwargs["model"] == "openai:gpt-5-mini"
+        assert call_kwargs["feedback_key"] == "retrieval_relevance"
+
+    @patch("retrieval_demo.eval.judges.create_llm_as_judge")
+    def test_judge_handles_invalid_score(self, mock_create_judge, retrieved_chunks):
         """Test that judge handles invalid score responses."""
-        mock_response = MagicMock()
-        mock_response.choices = [MagicMock()]
-        mock_response.choices[0].message.content = "not a number"
-        mock_openai_client.chat.completions.create.return_value = mock_response
+        mock_judge_fn = MagicMock(return_value={"score": "not a number"})
+        mock_create_judge.return_value = mock_judge_fn
 
         judge = RetrievalRelevanceJudge(model="gpt-4o-mini")
         score = judge.judge(
@@ -91,9 +90,25 @@ class TestRetrievalRelevanceJudge:
         # Should return 0.0 on parse error
         assert score == 0.0
 
-    def test_judge_handles_api_error(self, mock_openai_client, retrieved_chunks):
+    @patch("retrieval_demo.eval.judges.create_llm_as_judge")
+    def test_judge_handles_missing_score(self, mock_create_judge, retrieved_chunks):
+        """Test that judge handles missing score in response."""
+        mock_judge_fn = MagicMock(return_value={})
+        mock_create_judge.return_value = mock_judge_fn
+
+        judge = RetrievalRelevanceJudge(model="gpt-4o-mini")
+        score = judge.judge(
+            question="What is the capital of France?", retrieved_chunks=retrieved_chunks
+        )
+
+        # Should return 0.0 when score is missing
+        assert score == 0.0
+
+    @patch("retrieval_demo.eval.judges.create_llm_as_judge")
+    def test_judge_handles_api_error(self, mock_create_judge, retrieved_chunks):
         """Test that judge handles API errors gracefully."""
-        mock_openai_client.chat.completions.create.side_effect = Exception("API Error")
+        mock_judge_fn = MagicMock(side_effect=Exception("API Error"))
+        mock_create_judge.return_value = mock_judge_fn
 
         judge = RetrievalRelevanceJudge(model="gpt-4o-mini")
         score = judge.judge(
@@ -103,17 +118,32 @@ class TestRetrievalRelevanceJudge:
         # Should return 0.0 on error
         assert score == 0.0
 
+    @patch("retrieval_demo.eval.judges.create_llm_as_judge")
+    def test_judge_clamps_score_to_range(self, mock_create_judge, retrieved_chunks):
+        """Test that judge clamps scores to 0-1 range."""
+        # Test score > 1
+        mock_judge_fn = MagicMock(return_value={"score": 1.5})
+        mock_create_judge.return_value = mock_judge_fn
+
+        judge = RetrievalRelevanceJudge(model="gpt-4o-mini")
+        score = judge.judge(
+            question="What is the capital of France?", retrieved_chunks=retrieved_chunks
+        )
+        assert score == 1.0
+
+        # Test score < 0 (need new judge instance)
+        mock_judge_fn_negative = MagicMock(return_value={"score": -0.3})
+        mock_create_judge.return_value = mock_judge_fn_negative
+
+        judge2 = RetrievalRelevanceJudge(model="gpt-4o-mini")
+        score = judge2.judge(
+            question="What is the capital of France?", retrieved_chunks=retrieved_chunks
+        )
+        assert score == 0.0
+
 
 class TestGroundednessJudge:
     """Tests for GroundednessJudge."""
-
-    @pytest.fixture
-    def mock_openai_client(self):
-        """Create a mock OpenAI client."""
-        with patch("retrieval_demo.eval.judges.OpenAI") as mock_openai_class:
-            mock_client = MagicMock()
-            mock_openai_class.return_value = mock_client
-            yield mock_client
 
     @pytest.fixture
     def retrieved_chunks(self):
@@ -129,14 +159,13 @@ class TestGroundednessJudge:
             },
         ]
 
+    @patch("retrieval_demo.eval.judges.create_llm_as_judge")
     def test_judge_groundedness_returns_score(
-        self, mock_openai_client, retrieved_chunks
+        self, mock_create_judge, retrieved_chunks
     ):
         """Test that judge returns groundedness score."""
-        mock_response = MagicMock()
-        mock_response.choices = [MagicMock()]
-        mock_response.choices[0].message.content = "0.95"
-        mock_openai_client.chat.completions.create.return_value = mock_response
+        mock_judge_fn = MagicMock(return_value={"score": 0.95})
+        mock_create_judge.return_value = mock_judge_fn
 
         judge = GroundednessJudge(model="gpt-4o-mini")
         score = judge.judge(
@@ -144,39 +173,45 @@ class TestGroundednessJudge:
         )
 
         assert score == 0.95
-        mock_openai_client.chat.completions.create.assert_called_once()
+        mock_judge_fn.assert_called_once()
 
-    def test_judge_groundedness_uses_correct_prompt(
-        self, mock_openai_client, retrieved_chunks
+    @patch("retrieval_demo.eval.judges.create_llm_as_judge")
+    def test_judge_groundedness_uses_correct_parameters(
+        self, mock_create_judge, retrieved_chunks
     ):
-        """Test that judge uses RAG_GROUNDEDNESS_PROMPT."""
-        mock_response = MagicMock()
-        mock_response.choices = [MagicMock()]
-        mock_response.choices[0].message.content = "1.0"
-        mock_openai_client.chat.completions.create.return_value = mock_response
+        """Test that judge calls judge_fn with correct parameters."""
+        mock_judge_fn = MagicMock(return_value={"score": 1.0})
+        mock_create_judge.return_value = mock_judge_fn
 
         judge = GroundednessJudge(model="gpt-4o-mini")
         judge.judge(
             answer="Paris is the capital of France.", retrieved_chunks=retrieved_chunks
         )
 
-        # Verify prompt contains expected elements
-        call_args = mock_openai_client.chat.completions.create.call_args
-        messages = call_args.kwargs["messages"]
+        # Verify judge_fn was called with outputs and context
+        call_kwargs = mock_judge_fn.call_args.kwargs
+        assert call_kwargs["outputs"] == "Paris is the capital of France."
+        assert "Paris is the capital of France" in call_kwargs["context"]
+        assert "Eiffel Tower" in call_kwargs["context"]
 
-        # Should have system and user message
-        assert len(messages) >= 2
+    @patch("retrieval_demo.eval.judges.create_llm_as_judge")
+    def test_judge_initializes_with_correct_model(self, mock_create_judge):
+        """Test that judge initializes create_llm_as_judge with correct model."""
+        mock_judge_fn = MagicMock(return_value={"score": 0.5})
+        mock_create_judge.return_value = mock_judge_fn
 
-        # Check that context and answer are included
-        user_message = messages[-1]["content"]
-        assert "Paris is the capital of France" in user_message
+        GroundednessJudge(model="gpt-5-mini")
 
-    def test_judge_handles_invalid_score(self, mock_openai_client, retrieved_chunks):
+        # Verify create_llm_as_judge was called with correct model format
+        call_kwargs = mock_create_judge.call_args.kwargs
+        assert call_kwargs["model"] == "openai:gpt-5-mini"
+        assert call_kwargs["feedback_key"] == "groundedness"
+
+    @patch("retrieval_demo.eval.judges.create_llm_as_judge")
+    def test_judge_handles_invalid_score(self, mock_create_judge, retrieved_chunks):
         """Test that judge handles invalid score responses."""
-        mock_response = MagicMock()
-        mock_response.choices = [MagicMock()]
-        mock_response.choices[0].message.content = "invalid"
-        mock_openai_client.chat.completions.create.return_value = mock_response
+        mock_judge_fn = MagicMock(return_value={"score": "invalid"})
+        mock_create_judge.return_value = mock_judge_fn
 
         judge = GroundednessJudge(model="gpt-4o-mini")
         score = judge.judge(
@@ -186,9 +221,25 @@ class TestGroundednessJudge:
         # Should return 0.0 on parse error
         assert score == 0.0
 
-    def test_judge_handles_api_error(self, mock_openai_client, retrieved_chunks):
+    @patch("retrieval_demo.eval.judges.create_llm_as_judge")
+    def test_judge_handles_missing_score(self, mock_create_judge, retrieved_chunks):
+        """Test that judge handles missing score in response."""
+        mock_judge_fn = MagicMock(return_value={})
+        mock_create_judge.return_value = mock_judge_fn
+
+        judge = GroundednessJudge(model="gpt-4o-mini")
+        score = judge.judge(
+            answer="Paris is the capital of France.", retrieved_chunks=retrieved_chunks
+        )
+
+        # Should return 0.0 when score is missing
+        assert score == 0.0
+
+    @patch("retrieval_demo.eval.judges.create_llm_as_judge")
+    def test_judge_handles_api_error(self, mock_create_judge, retrieved_chunks):
         """Test that judge handles API errors gracefully."""
-        mock_openai_client.chat.completions.create.side_effect = Exception("API Error")
+        mock_judge_fn = MagicMock(side_effect=Exception("API Error"))
+        mock_create_judge.return_value = mock_judge_fn
 
         judge = GroundednessJudge(model="gpt-4o-mini")
         score = judge.judge(
@@ -198,17 +249,25 @@ class TestGroundednessJudge:
         # Should return 0.0 on error
         assert score == 0.0
 
-    def test_judge_with_optional_api_key(self, mock_openai_client, retrieved_chunks):
-        """Test that judge can be initialized with optional API key."""
-        mock_response = MagicMock()
-        mock_response.choices = [MagicMock()]
-        mock_response.choices[0].message.content = "0.9"
-        mock_openai_client.chat.completions.create.return_value = mock_response
+    @patch("retrieval_demo.eval.judges.create_llm_as_judge")
+    def test_judge_clamps_score_to_range(self, mock_create_judge, retrieved_chunks):
+        """Test that judge clamps scores to 0-1 range."""
+        # Test score > 1
+        mock_judge_fn = MagicMock(return_value={"score": 1.8})
+        mock_create_judge.return_value = mock_judge_fn
 
-        # Initialize with explicit API key
-        judge = GroundednessJudge(model="gpt-4o-mini", api_key="test-key")
+        judge = GroundednessJudge(model="gpt-4o-mini")
         score = judge.judge(
             answer="Paris is the capital of France.", retrieved_chunks=retrieved_chunks
         )
+        assert score == 1.0
 
-        assert score == 0.9
+        # Test score < 0 (need new judge instance)
+        mock_judge_fn_negative = MagicMock(return_value={"score": -0.5})
+        mock_create_judge.return_value = mock_judge_fn_negative
+
+        judge2 = GroundednessJudge(model="gpt-4o-mini")
+        score = judge2.judge(
+            answer="Paris is the capital of France.", retrieved_chunks=retrieved_chunks
+        )
+        assert score == 0.0
