@@ -66,7 +66,12 @@ def main():
 
     # Step 2: Define retrieval strategies to evaluate
     logger.info("Step 2: Defining retrieval strategies")
-    retrieval_strategies = ["semantic", "rerank", "multiquery", "hybrid"]
+    retrieval_strategies = [
+        "semantic", # if you ran the chunking eval this one is redundant and not required
+        "rerank",
+        "multiquery",
+        "hybrid"
+    ]
 
     logger.info(f"Evaluating {len(retrieval_strategies)} retrieval strategies")
 
