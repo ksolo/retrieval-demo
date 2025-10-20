@@ -68,7 +68,9 @@ class TestRetrieverFactory:
             )
 
     @patch("src.retrieval_demo.agent.retrievers.factory.os.getenv")
-    def test_make_retriever_creates_multiquery_retriever(self, mock_getenv, mock_client):
+    def test_make_retriever_creates_multiquery_retriever(
+        self, mock_getenv, mock_client
+    ):
         """Test that factory creates MultiQueryRetriever for multiquery strategy."""
         mock_getenv.return_value = "test-openai-api-key"
 
@@ -84,7 +86,9 @@ class TestRetrieverFactory:
         assert retriever.collection_name == "test_collection"
 
         # Verify environment variable was checked (may be called multiple times by ChatOpenAI init)
-        assert any(call[0][0] == "OPENAI_API_KEY" for call in mock_getenv.call_args_list)
+        assert any(
+            call[0][0] == "OPENAI_API_KEY" for call in mock_getenv.call_args_list
+        )
 
     @patch("src.retrieval_demo.agent.retrievers.factory.os.getenv")
     def test_make_retriever_multiquery_raises_error_without_api_key(

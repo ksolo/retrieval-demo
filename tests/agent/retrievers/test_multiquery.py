@@ -102,7 +102,9 @@ class TestMultiQueryRetriever:
     def mock_llm_response(self):
         """Mock response from LLM query generation."""
         response = MagicMock()
-        response.content = "Alternative query 1\nAlternative query 2\nAlternative query 3"
+        response.content = (
+            "Alternative query 1\nAlternative query 2\nAlternative query 3"
+        )
         return response
 
     def test_generate_query_variants_calls_llm_correctly(
@@ -225,8 +227,16 @@ class TestMultiQueryRetriever:
         assert "rrf_score" in fused[1]["metadata"]
 
         # Verify scores are close (they should be nearly equal)
-        score_a = next(r["metadata"]["rrf_score"] for r in fused if r["metadata"]["uuid"] == "uuid-a")
-        score_b = next(r["metadata"]["rrf_score"] for r in fused if r["metadata"]["uuid"] == "uuid-b")
+        score_a = next(
+            r["metadata"]["rrf_score"]
+            for r in fused
+            if r["metadata"]["uuid"] == "uuid-a"
+        )
+        score_b = next(
+            r["metadata"]["rrf_score"]
+            for r in fused
+            if r["metadata"]["uuid"] == "uuid-b"
+        )
         assert abs(score_a - score_b) < 0.001  # Should be very close
 
     def test_fuse_results_rrf_ranks_by_score(self, retriever):
@@ -381,7 +391,11 @@ class TestMultiQueryRetriever:
         mock_llm.invoke.return_value = mock_llm_response
         results_with_missing_text = [
             {
-                "properties": {"document_id": "doc-1", "chunk_index": 0, "chunk_size": 100},
+                "properties": {
+                    "document_id": "doc-1",
+                    "chunk_index": 0,
+                    "chunk_size": 100,
+                },
                 "metadata": {"uuid": "uuid-1", "distance": 0.15},
             }
         ]
@@ -434,6 +448,4 @@ class TestMultiQueryRetriever:
         )
 
         # Verify ChatOpenAI was initialized with correct parameters
-        mock_chat_openai.assert_called_once_with(
-            model="gpt-5-mini", api_key="test-key"
-        )
+        mock_chat_openai.assert_called_once_with(model="gpt-5-mini", api_key="test-key")

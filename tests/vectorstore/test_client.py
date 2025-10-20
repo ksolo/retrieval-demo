@@ -149,6 +149,7 @@ class TestWeaviateClientHybridSearch:
 
         # Verify collection.query.hybrid was called with correct parameters
         from weaviate.classes.query import MetadataQuery
+
         mock_collection.query.hybrid.assert_called_once_with(
             query="test query",
             limit=5,
@@ -185,7 +186,9 @@ class TestWeaviateClientHybridSearch:
         """Test that hybrid_search raises ValueError for nonexistent collection."""
         mock_weaviate_client.client.collections.exists.return_value = False
 
-        with pytest.raises(ValueError, match="Collection test_collection does not exist"):
+        with pytest.raises(
+            ValueError, match="Collection test_collection does not exist"
+        ):
             mock_weaviate_client.hybrid_search(
                 collection_name="test_collection", query="test query", limit=5
             )

@@ -27,9 +27,7 @@ class TestRetrievalRelevanceJudge:
         ]
 
     @patch("retrieval_demo.eval.judges.create_llm_as_judge")
-    def test_judge_relevance_returns_score(
-        self, mock_create_judge, retrieved_chunks
-    ):
+    def test_judge_relevance_returns_score(self, mock_create_judge, retrieved_chunks):
         """Test that judge returns relevance score."""
         # Mock the judge function to return a score
         mock_judge_fn = MagicMock(return_value={"score": 0.8})

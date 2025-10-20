@@ -50,7 +50,9 @@ def make_retriever(
                 "COHERE_API_KEY environment variable is required for rerank strategy"
             )
         return RerankRetriever(
-            client=client, collection_name=collection_name, cohere_api_key=cohere_api_key
+            client=client,
+            collection_name=collection_name,
+            cohere_api_key=cohere_api_key,
         )
 
     elif strategy == "multiquery":
@@ -61,7 +63,9 @@ def make_retriever(
                 "OPENAI_API_KEY environment variable is required for multiquery strategy"
             )
         return MultiQueryRetriever(
-            client=client, collection_name=collection_name, openai_api_key=openai_api_key
+            client=client,
+            collection_name=collection_name,
+            openai_api_key=openai_api_key,
         )
 
     elif strategy == "hybrid":

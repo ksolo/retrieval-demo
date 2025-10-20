@@ -194,7 +194,10 @@ class WeaviateClient:
 
         # Perform hybrid query with balanced alpha (0.5)
         response = collection.query.hybrid(
-            query=query, limit=limit, alpha=0.5, return_metadata=MetadataQuery(score=True)
+            query=query,
+            limit=limit,
+            alpha=0.5,
+            return_metadata=MetadataQuery(score=True),
         )
 
         # Convert Weaviate objects to dicts

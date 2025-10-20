@@ -250,9 +250,13 @@ class TestWeaviateClientIntegration:
     def test_hybrid_search_nonexistent_collection(self, client):
         """Test hybrid search on non-existent collection raises ValueError."""
         try:
-            with pytest.raises(ValueError, match="Collection nonexistent_collection does not exist"):
+            with pytest.raises(
+                ValueError, match="Collection nonexistent_collection does not exist"
+            ):
                 client.hybrid_search(
-                    collection_name="nonexistent_collection", query="test query", limit=5
+                    collection_name="nonexistent_collection",
+                    query="test query",
+                    limit=5,
                 )
         finally:
             client.close()

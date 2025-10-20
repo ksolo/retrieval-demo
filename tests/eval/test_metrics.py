@@ -1,7 +1,11 @@
 """Tests for metrics calculation."""
 
 import pytest
-from retrieval_demo.eval.metrics import RetrievalMetrics, AggregateMetrics, MetricsCalculator
+from retrieval_demo.eval.metrics import (
+    RetrievalMetrics,
+    AggregateMetrics,
+    MetricsCalculator,
+)
 
 
 class TestRetrievalMetrics:

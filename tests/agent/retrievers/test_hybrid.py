@@ -146,9 +146,7 @@ class TestHybridRetriever:
 
     def test_retrieve_propagates_client_errors(self, retriever, mock_client):
         """Test that errors from client are propagated."""
-        mock_client.hybrid_search.side_effect = ValueError(
-            "Collection does not exist"
-        )
+        mock_client.hybrid_search.side_effect = ValueError("Collection does not exist")
 
         with pytest.raises(ValueError, match="Collection does not exist"):
             retriever.retrieve(query="test query", limit=5)

@@ -91,7 +91,11 @@ class TestRerankRetriever:
         return response
 
     def test_retrieve_gets_2x_candidates_from_semantic_search(
-        self, retriever, mock_weaviate_client, mock_cohere_client, sample_weaviate_results
+        self,
+        retriever,
+        mock_weaviate_client,
+        mock_cohere_client,
+        sample_weaviate_results,
     ):
         """Test that retrieve requests 2x limit from semantic search."""
         mock_weaviate_client.semantic_search.return_value = sample_weaviate_results
@@ -105,7 +109,11 @@ class TestRerankRetriever:
         )
 
     def test_retrieve_calls_cohere_rerank_with_correct_parameters(
-        self, retriever, mock_weaviate_client, mock_cohere_client, sample_weaviate_results
+        self,
+        retriever,
+        mock_weaviate_client,
+        mock_cohere_client,
+        sample_weaviate_results,
     ):
         """Test that retrieve calls Cohere rerank with correct parameters."""
         mock_weaviate_client.semantic_search.return_value = sample_weaviate_results
@@ -193,7 +201,11 @@ class TestRerankRetriever:
         """Test that retrieve handles missing text field gracefully."""
         results_with_missing_text = [
             {
-                "properties": {"document_id": "doc-1", "chunk_index": 0, "chunk_size": 100},
+                "properties": {
+                    "document_id": "doc-1",
+                    "chunk_index": 0,
+                    "chunk_size": 100,
+                },
                 "metadata": {"uuid": "uuid-1", "distance": 0.15},
             },
             {
@@ -223,7 +235,11 @@ class TestRerankRetriever:
         assert documents[0].page_content == ""  # Empty string for missing text
 
     def test_cohere_api_error_propagates(
-        self, retriever, mock_weaviate_client, mock_cohere_client, sample_weaviate_results
+        self,
+        retriever,
+        mock_weaviate_client,
+        mock_cohere_client,
+        sample_weaviate_results,
     ):
         """Test that Cohere API errors are propagated (fail fast)."""
         mock_weaviate_client.semantic_search.return_value = sample_weaviate_results
@@ -251,7 +267,9 @@ class TestRerankRetriever:
             collection_name="custom_collection", query="test", limit=6
         )
 
-    def test_get_semantic_candidates_returns_correct_results(self, retriever, mock_weaviate_client, sample_weaviate_results):
+    def test_get_semantic_candidates_returns_correct_results(
+        self, retriever, mock_weaviate_client, sample_weaviate_results
+    ):
         """Test _get_semantic_candidates private method."""
         mock_weaviate_client.semantic_search.return_value = sample_weaviate_results
 
@@ -282,7 +300,9 @@ class TestRerankRetriever:
         self, retriever, sample_weaviate_results, mock_rerank_response
     ):
         """Test _build_documents creates Document objects correctly."""
-        documents = retriever._build_documents(mock_rerank_response, sample_weaviate_results)
+        documents = retriever._build_documents(
+            mock_rerank_response, sample_weaviate_results
+        )
 
         assert len(documents) == 2
         assert documents[0].page_content == "Third document content"

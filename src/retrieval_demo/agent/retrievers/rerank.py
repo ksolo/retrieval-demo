@@ -57,7 +57,9 @@ class RerankRetriever:
         semantic_results = self._get_semantic_candidates(query, limit)
 
         if not semantic_results:
-            logger.warning("No documents found for semantic search, returning empty list")
+            logger.warning(
+                "No documents found for semantic search, returning empty list"
+            )
             return []
 
         # Step 2: Rerank candidates with Cohere
@@ -113,7 +115,9 @@ class RerankRetriever:
             Exception: If Cohere API call fails
         """
         # Extract text content from semantic results
-        doc_texts = [result["properties"].get("text", "") for result in semantic_results]
+        doc_texts = [
+            result["properties"].get("text", "") for result in semantic_results
+        ]
 
         logger.info(
             f"Reranking {len(doc_texts)} documents using Cohere rerank-english-v3.0"
@@ -126,12 +130,16 @@ class RerankRetriever:
             top_n=limit,
         )
 
-        logger.info(f"Reranking complete, received {len(rerank_response.results)} results")
+        logger.info(
+            f"Reranking complete, received {len(rerank_response.results)} results"
+        )
 
         return rerank_response
 
     def _build_documents(
-        self, rerank_response: cohere.RerankResponse, semantic_results: List[Dict[str, Any]]
+        self,
+        rerank_response: cohere.RerankResponse,
+        semantic_results: List[Dict[str, Any]],
     ) -> List[Document]:
         """
         Convert reranked results to Document objects.
