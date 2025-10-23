@@ -63,7 +63,7 @@ def model_node(state: AgentState) -> dict:
     )
 
     user_message = HumanMessage(
-        content=f"Context:\n{context}\n\nQuestion: {query}\n\nAnswer:"
+        content=f"Context:\n{context}\n\nQuestion: {query}\n\n"
     )
 
     # Initialize LLM (uses OPENAI_API_KEY from env)
