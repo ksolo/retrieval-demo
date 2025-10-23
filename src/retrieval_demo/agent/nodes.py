@@ -62,9 +62,7 @@ def model_node(state: AgentState) -> dict:
         )
     )
 
-    user_message = HumanMessage(
-        content=f"Context:\n{context}\n\nQuestion: {query}\n\n"
-    )
+    user_message = HumanMessage(content=f"Context:\n{context}\n\nQuestion: {query}\n\n")
 
     # Initialize LLM (uses OPENAI_API_KEY from env)
     llm = ChatOpenAI(model="gpt-5-mini")
