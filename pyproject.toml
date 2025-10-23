@@ -1,17 +1,17 @@
 [project]
 name = "retrieval-demo"
 version = "0.1.0"
-description = "Add your description here"
+description = "Set up for evaluating rag strategies"
 readme = "README.md"
 authors = [
     { name = "Kevin Solorio", email = "103829+ksolo@users.noreply.github.com" }
 ]
-requires-python = ">=3.13.7"
+requires-python = "==3.13.7"
 dependencies = [
     "cohere>=5.19.0",
     "datasets>=4.1.1",
     "langchain-experimental>=0.3.4",
-    "langchain-openai>=0.3.33",
+    "langchain-openai>=0.3.35",
     "langgraph>=0.6.7",
     "langgraph-cli>=0.4.2",
     "langsmith>=0.4.29",
